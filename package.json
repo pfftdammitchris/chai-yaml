@@ -1,0 +1,46 @@
+{
+  "author": "Christopher Tran <pfftdammitchris@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/pfftdammitchris/chai-yaml/issues"
+  },
+  "description": "Chai plugin for YAML",
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0",
+    "yaml": "^2.1.0"
+  },
+  "directories": {
+    "test": "__tests__"
+  },
+  "files": [
+    "index.js"
+  ],
+  "homepage": "https://github.com/pfftdammitchris/chai-yaml.git",
+  "keywords": [
+    "yaml",
+    "chai",
+    "plugin",
+    "mocha",
+    "ts-mocha",
+    "test",
+    "unit"
+  ],
+  "license": "ISC",
+  "main": "index.js",
+  "module": "index.js",
+  "name": "chai-yaml",
+  "peerDependencies": {
+    "chai": "^4.3.6",
+    "yaml": "^2.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pfftdammitchris/chai-yaml.git"
+  },
+  "scripts": {
+    "test": "mocha index.test.js",
+    "test:watch": "mocha index.test.js -w"
+  },
+  "types": "global.d.ts",
+  "version": "0.0.1"
+}
