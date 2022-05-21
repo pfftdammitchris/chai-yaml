@@ -13,7 +13,11 @@
     "test": "__tests__"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "index.test.js",
+    "global.d.ts",
+    "package.json",
+    "package-lock.json"
   ],
   "homepage": "https://github.com/pfftdammitchris/chai-yaml.git",
   "keywords": [
