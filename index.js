@@ -1,7 +1,7 @@
 /// <reference path="./global.d.ts" />
 const Chai = require('chai')
 const y = require('yaml')
-const isEqual = require('lodash/isEqual')
+const isEqual = require('./isEqual')
 
 /**
  * @typedef YAMLNode
