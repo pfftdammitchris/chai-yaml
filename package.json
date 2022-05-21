@@ -18,7 +18,8 @@
     "isEqual.js",
     "global.d.ts",
     "package.json",
-    "package-lock.json"
+    "package-lock.json",
+    "README.md"
   ],
   "homepage": "https://github.com/pfftdammitchris/chai-yaml.git",
   "keywords": [
