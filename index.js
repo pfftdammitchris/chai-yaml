@@ -143,7 +143,7 @@ function YamlChai(chai, utils) {
             assertProperty(eqFlagKey, pointToNodeValue(node), value)
           })
         } else {
-          _super.apply(node, arguments)
+          _super.apply(this, arguments)
         }
       } else {
         _super.apply(this, arguments)
@@ -156,7 +156,7 @@ function YamlChai(chai, utils) {
       if (flags.property === 'value') {
         assertProperty('value', pointToNodeValue(node), null)
       } else {
-        _super.call(node)
+        _super.call(this, node)
       }
     } else {
       _super.call(this)
@@ -170,7 +170,7 @@ function YamlChai(chai, utils) {
         if (flags.property === 'value') {
           assertProperty('value', pointToNodeValue(node), undefined)
         } else {
-          _super.call(node)
+          _super.call(this, node)
         }
       } else {
         _super.call(this)
