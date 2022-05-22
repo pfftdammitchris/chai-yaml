@@ -49,7 +49,6 @@ function getJsValue(node) {
  */
 function YamlChai(chai, utils) {
   const Assertion = chai.Assertion
-  const expect = chai.expect
 
   const setNodeFlags = function (property, value) {
     if (arguments.length > 1) {
@@ -70,35 +69,45 @@ function YamlChai(chai, utils) {
     }
   }
 
-  /**
-   * @param { string } property
-   * @param { YAMLNode } node
-   * @param { any } value
-   */
-  function assertProperty(property, node, value) {
-    const actualValue = getJsValue(node)
+  function assertNodeEqual(node, value) {
+    let exp = getJsValue(pointToNodeValue(node))
+    let act = isYamlNode(value) ? getJsValue(pointToNodeValue(value)) : value
+    let assertPrefix = `expected #{this} to have`
+    let negatePrefix = `expected #{this} to not have`
+
+    let result =
+      node === value
+        ? true
+        : utils.flag(this, 'deep')
+        ? isEqual(act, exp)
+        : act === exp
+
+    if (utils.flag(this, 'deep')) {
+      assertPrefix += ' deep'
+      negatePrefix += ' deep'
+    }
     this.assert(
-      isEqual(actualValue, value),
-      `expected #{this} to have ${property} #{exp} but received #{act}`,
-      `expected #{this} to not have ${property} #{exp} but received #{act}`,
-      value,
-      actualValue,
+      result,
+      `${assertPrefix} value #{exp} but received #{act}`,
+      `${negatePrefix} value #{exp} but received #{act}`,
+      exp,
+      act,
     )
   }
 
   /**
    *
    * @param { string } property
-   * @param { (args: { _super: any, node: YAMLNode; flags: { node: string; property: string }; value: any; assertProperty: typeof assertProperty }) => void } fn
+   * @param { (args: { _super: any, node: YAMLNode; flags: { node: string; property: string }; value: any; assertNodeEqual: typeof assertNodeEqual }) => void } fn
    */
   function overwriteProperty(property, fn) {
     Assertion.overwriteProperty(property, function (_super) {
       return function () {
         return fn.call(this, {
-          _super,
           flags: getNodeFlags(),
           node: this._obj,
-          assertProperty: assertProperty.bind(this),
+          assertNodeEqual: assertNodeEqual.bind(this),
+          next: () => _super.call(this),
         })
       }
     })
@@ -106,77 +115,46 @@ function YamlChai(chai, utils) {
 
   /**
    * @param { string } method
-   * @param { (args: { _super: any, node: YAMLNode; flags: { node: string; property: string }; value: any; assertProperty: typeof assertProperty }) => void } fn
+   * @param { (args: { _super: any, node: YAMLNode; flags: { node: string; property: string }; value: any; assertNodeEqual: typeof assertNodeEqual }) => void } fn
    */
   function overwriteMethod(method, fn) {
     Assertion.overwriteMethod(method, function (_super) {
       return function (value) {
-        const node = this._obj
+        const node = utils.flag(this, 'object')
         const flags = getNodeFlags()
         fn.call(this, {
-          _super,
           node,
           flags,
           value,
-          assertProperty: assertProperty.bind(this),
+          assertNodeEqual: assertNodeEqual.bind(this),
+          next: () => _super.apply(this, arguments),
         })
       }
     })
   }
 
-  overwriteProperty('value', function ({ _super, node }) {
+  overwriteProperty('value', function ({ next, node }) {
     if (isYamlNode(node)) {
       setNodeFlags('node', getNodeType(node))
       setNodeFlags('property', 'value')
-    } else {
-      _super.call(this)
-    }
+    } else next()
   })
 
-  overwriteMethod(
-    'eq',
-    function ({ _super, node, flags, value, assertProperty }) {
-      const eqFlagKeys = ['value']
-      if (flags.node) {
-        if (flags.property.includes(eqFlagKeys)) {
-          eqFlagKeys.forEach((eqFlagKey) => {
-            assertProperty(eqFlagKey, pointToNodeValue(node), value)
-          })
-        } else {
-          _super.apply(this, arguments)
-        }
-      } else {
-        _super.apply(this, arguments)
-      }
-    },
-  )
-
-  overwriteProperty('null', function ({ _super, assertProperty, flags, node }) {
-    if (isYamlNode(node)) {
-      if (flags.property === 'value') {
-        assertProperty('value', pointToNodeValue(node), null)
-      } else {
-        _super.call(this, node)
-      }
-    } else {
-      _super.call(this)
-    }
+  overwriteMethod('eq', ({ assertNodeEqual, flags, next, node, value }) => {
+    if (flags.node && flags.property === 'value') assertNodeEqual(node, value)
+    else next()
   })
 
-  overwriteProperty(
-    'undefined',
-    function ({ _super, assertProperty, flags, node }) {
-      if (isYamlNode(node)) {
-        if (flags.property === 'value') {
-          assertProperty('value', pointToNodeValue(node), undefined)
-        } else {
-          _super.call(this, node)
-        }
-      } else {
-        _super.call(this)
-      }
-    },
-  )
+  overwriteProperty('null', ({ assertNodeEqual, flags, next, node }) => {
+    if (flags.node && flags.property === 'value') assertNodeEqual(node, null)
+    else next()
+  })
+
+  overwriteProperty('undefined', ({ assertNodeEqual, flags, next, node }) => {
+    if (flags.node && flags.property === 'value') {
+      assertNodeEqual(node, undefined)
+    } else next()
+  })
 }
 
 module.exports = YamlChai
