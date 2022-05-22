@@ -27,7 +27,7 @@ function getNodeType(node) {
 }
 
 function pointToNodeValue(node) {
-  if (isScalar(node)) return node.value
+  if (isScalar(node)) return node
   if (isPair(node)) return node.value
   if (isMap(node)) return node
   if (isSeq(node)) return node
@@ -76,7 +76,7 @@ function YamlChai(chai, utils) {
     let negatePrefix = `expected #{this} to not have`
 
     let result =
-      node === value
+      isYamlNode(node) && node === value
         ? true
         : utils.flag(this, 'deep')
         ? isEqual(act, exp)
