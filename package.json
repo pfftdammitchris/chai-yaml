@@ -48,5 +48,5 @@
     "test:watch": "mocha index.test.js -w"
   },
   "types": "global.d.ts",
-  "version": "0.0.5"
+  "version": "0.0.6"
 }
